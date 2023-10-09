@@ -1,5 +1,5 @@
 --[[
-require "options"
+erdhver "bcgvbaf"
 require "keymaps"
 require "Lazy"
 require "autocommands"
@@ -205,16 +205,30 @@ require('lazy').setup({
       "nvim-lua/plenary.nvim",
       "debugloop/telescope-undo.nvim",
     },
+
     config = function()
       require("telescope").setup({
         extensions = {
           undo = {
             -- telescope-undo.nvim config, see below
           },
+          emoji = {
+            action = function(emoji)
+              -- argument emoji is a table.
+              -- {name="", value="", cagegory="", description=""}
+
+              vim.fn.setreg("*", emoji.value)
+              print([[Press p or "*p to paste this emoji]] .. emoji.value)
+
+              -- insert emoji when picked
+              -- vim.api.nvim_put({ emoji.value }, 'c', false, true)
+            end,
+          }
         },
       })
       require("telescope").load_extension("undo")
       vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
+      --require("telescope").load_extension("emoji")
     end,
   },
   {
@@ -231,7 +245,7 @@ require('lazy').setup({
   --       Uncomment any of the lines below to enable them.
   require 'plugins.autoformat',
   require 'plugins.debug',
-
+  require 'plugins.obsidian',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
@@ -461,7 +475,7 @@ end
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
-  -- clangd = {},
+  clangd = {},
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
@@ -499,6 +513,31 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
+
+-- nvim-tree
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- set termguicolors to enable highlight groups
+vim.opt.termguicolors = true
+
+-- empty setup using defaults
+-- require("nvim-tree").setup()
+
+-- OR setup with some options
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  view = {
+    width = 30,
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
+})
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
