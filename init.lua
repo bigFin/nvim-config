@@ -138,8 +138,6 @@ require('lazy').setup({
     },
   },
   {
-    -- Theme inspired by Atom
-    --    'navarasu/onedark.nvim',
     'rose-pine/neovim',
 
     priority = 1000,
@@ -164,11 +162,10 @@ require('lazy').setup({
   {
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
+    main = "ibl",
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help indent_blankline.txt`
     opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
     },
   },
 
@@ -200,11 +197,23 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
   {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+      "MunifTanjim/nui.nvim",
+    }
+
+  },
+  {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "debugloop/telescope-undo.nvim",
-    },
+      "nvim-telescope/telescope-live-grep-args.nvim",
+      "xiyaowong/telescope-emoji.nvim",
+},
 
     config = function()
       require("telescope").setup({
@@ -221,24 +230,17 @@ require('lazy').setup({
               print([[Press p or "*p to paste this emoji]] .. emoji.value)
 
               -- insert emoji when picked
-              -- vim.api.nvim_put({ emoji.value }, 'c', false, true)
+              vim.api.nvim_put({ emoji.value }, 'c', false, true)
             end,
           }
         },
       })
       require("telescope").load_extension("undo")
       vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
-      --require("telescope").load_extension("emoji")
+      require("telescope").load_extension("emoji")
+      require("telescope").load_extension("live_grep_args")
+      vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
     end,
-  },
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    }
   },
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -551,7 +553,7 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end,
   },
-  mapping = cmp.mapping.preset.insert {
+  mapping = cmp.mapping.preset.jinsert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
