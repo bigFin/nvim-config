@@ -195,8 +195,21 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ':TSUpdate',
+    config = function()
+      require("lazy").setup({{"nvim-treesitter/nvim-treesitter", build = ":TSUpdate"}})
   },
   {
+  "nvim-tree/nvim-tree.lua",
+  version = "*",
+  lazy = false,
+  dependencies = {
+    "nvim-tree/nvim-web-devicons",
+  },
+  config = function()
+    require("nvim-tree").setup {}
+  end,
+},
+{
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     dependencies = {
@@ -206,7 +219,7 @@ require('lazy').setup({
     }
 
   },
-  {
+ {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -238,6 +251,7 @@ require('lazy').setup({
       require("telescope").load_extension("undo")
       vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
       require("telescope").load_extension("emoji")
+      vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
       require("telescope").load_extension("live_grep_args")
       vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
     end,
