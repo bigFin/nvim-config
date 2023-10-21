@@ -196,21 +196,21 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
     config = function()
-      require("lazy").setup({{"nvim-treesitter/nvim-treesitter", build = ":TSUpdate"}})
+      require("lazy").setup({ { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" } })
     end,
   },
   {
-  "nvim-tree/nvim-tree.lua",
-  version = "*",
-  lazy = false,
-  dependencies = {
-    "nvim-tree/nvim-web-devicons",
+    "nvim-tree/nvim-tree.lua",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("nvim-tree").setup {}
+    end,
   },
-  config = function()
-    require("nvim-tree").setup {}
-  end,
-},
-{
+  {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     dependencies = {
@@ -220,14 +220,14 @@ require('lazy').setup({
     }
 
   },
- {
+  {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "debugloop/telescope-undo.nvim",
       "nvim-telescope/telescope-live-grep-args.nvim",
       "xiyaowong/telescope-emoji.nvim",
-},
+    },
 
     config = function()
       require("telescope").setup({
@@ -568,7 +568,7 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end,
   },
-  mapping = cmp.mapping.preset.jinsert {
+  mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
