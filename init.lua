@@ -197,6 +197,7 @@ require('lazy').setup({
     build = ':TSUpdate',
     config = function()
       require("lazy").setup({{"nvim-treesitter/nvim-treesitter", build = ":TSUpdate"}})
+    end,
   },
   {
   "nvim-tree/nvim-tree.lua",
