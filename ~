@@ -129,7 +129,8 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
+        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk,
+          { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
         vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
         vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
       end,
@@ -219,11 +220,13 @@ require('lazy').setup({
   require("lazy").setup({
   {
     "nvim-telescope/telescope.nvim",
+    "nvim-neorg/neorg",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "debugloop/telescope-undo.nvim",
       "nvim-telescope/telescope-live-grep-args.nvim",
       "xiyaowong/telescope-emoji.nvim",
+      "nvim-neorg/neorg",
     },
      config = function()
       require("telescope").setup({
@@ -241,8 +244,20 @@ require('lazy').setup({
             end,
           }
         },
-      })
-      
+      }),
+require("neorg").setup {
+        load = {
+          ["core.defaults"] = {}, -- Loads default behaviour
+          ["core.concealer"] = {}, -- Adds pretty icons to your documents
+          ["core.dirman"] = { -- Manages Neorg workspaces
+            config = {
+              workspaces = {
+                notes = "/SSD500/logseq/journals",
+              },
+            },
+          },
+        },
+      }
       require("telescope").load_extension("undo")
       vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
       require("telescope").load_extension("emoji")
