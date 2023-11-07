@@ -79,7 +79,7 @@ require('lazy').setup({
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
-
+  'sbdchd/neoformat',
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -131,7 +131,7 @@ require('lazy').setup({
       require("telescope").load_extension("live_grep_args")
       vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
     end,
-    --[[ config = function()
+    config = function()
       return {
         "epwalsh/obsidian.nvim",
         lazy = true,
@@ -162,8 +162,9 @@ require('lazy').setup({
           -- see below for full list of options 👇
         },
       }
-    end, --]]
-  }, {
+    end,
+  }
+  , {
   -- Autocompletion
   'hrsh7th/nvim-cmp',
   dependencies = {
@@ -294,12 +295,7 @@ require('lazy').setup({
       "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
       "MunifTanjim/nui.nvim",
     },
-    {
-      "iamcco/markdown-preview.nvim",
-      cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-      ft = { "markdown" },
-      build = function() vim.fn["mkdp#util#install"]() end,
-    }
+    { "ellisonleao/glow.nvim", config = true, cmd = "Glow" },
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -308,7 +304,7 @@ require('lazy').setup({
   require 'plugins.autoformat',
   require 'plugins.debug',
 
-  -- require 'plugins.obsidian',
+  require 'plugins.obsidian',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
@@ -539,7 +535,7 @@ end
 require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+  --  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
@@ -550,7 +546,6 @@ require('which-key').register {
 -- before setting up the servers.
 require('mason').setup()
 require('mason-lspconfig').setup()
-require 'lspconfig'.marksman.setup {}
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -559,11 +554,11 @@ require 'lspconfig'.marksman.setup {}
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   clangd = {},
-  -- gopls = {},
-  -- pyright = {},
+  gopls = {},
+  pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-
+  tsserver = {},
+  marksman = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
