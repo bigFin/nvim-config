@@ -3,7 +3,8 @@ erdhver "bcgvbaf"
 require "keymaps"
 require "Lazy"
 require "autocommands"
-]]--
+]]
+--
 
 --[[
 
@@ -97,7 +98,7 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
-   {
+  {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -105,7 +106,7 @@ require('lazy').setup({
       "nvim-telescope/telescope-live-grep-args.nvim",
       "xiyaowong/telescope-emoji.nvim",
     },
-     config = function()
+    config = function()
       require("telescope").setup({
         extensions = {
           undo = {
@@ -116,7 +117,7 @@ require('lazy').setup({
               -- argument emoji is a table.
               -- {name="", value="", cagegory="", description=""}
               vim.fn.setreg("*", emoji.value)
-              print([[Press p or "*p to paste this emoji]] .. emoji.value)              -- insert emoji when picked
+              print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
               vim.api.nvim_put({ emoji.value }, 'c', false, true)
             end,
           }
@@ -129,28 +130,60 @@ require('lazy').setup({
       vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
       require("telescope").load_extension("live_grep_args")
       vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
- end,
-  },{
-    -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
+    end,
+    --[[ config = function()
+      return {
+        "epwalsh/obsidian.nvim",
+        lazy = true,
+        event = {
+          -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+          -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+          "BufReadPre path/to/my-vault/**.md",
+          "BufNewFile path/to/my-vault/**.md",
+        },
+        dependencies = {
+          -- Required.
+          "nvim-lua/plenary.nvim",
 
-      -- Adds LSP completion capabilities
-      'hrsh7th/cmp-nvim-lsp',
+          -- see below for full list of optional dependencies 👇
+        },
+        opts = {
+          workspaces = {
+            {
+              name = "logseq",
+              path = "SSD500/logseq",
+            },
+            {
+              name = "avenueIntelligence",
+              path = "/SSD500/Code/avenueIntelligence logseq",
+            },
+          },
 
-      -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
-    },
+          -- see below for full list of options 👇
+        },
+      }
+    end, --]]
+  }, {
+  -- Autocompletion
+  'hrsh7th/nvim-cmp',
+  dependencies = {
+    -- Snippet Engine & its associated nvim-cmp source
+    'L3MON4D3/LuaSnip',
+    'saadparwaiz1/cmp_luasnip',
+
+    -- Adds LSP completion capabilities
+    'hrsh7th/cmp-nvim-lsp',
+
+    -- Adds a number of user-friendly snippets
+    'rafamadriz/friendly-snippets',
   },
+},
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',          opts = {} },
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
-opts = {
+    opts = {
       -- See `:help gitsigns.txt`
       signs = {
         add = { text = '+' },
@@ -260,6 +293,12 @@ opts = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
       "MunifTanjim/nui.nvim",
+    },
+    {
+      "iamcco/markdown-preview.nvim",
+      cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+      ft = { "markdown" },
+      build = function() vim.fn["mkdp#util#install"]() end,
     }
   },
 
@@ -268,7 +307,7 @@ opts = {
   --       Uncomment any of the lines below to enable them.
   require 'plugins.autoformat',
   require 'plugins.debug',
-  
+
   -- require 'plugins.obsidian',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -345,7 +384,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
-    require('telescope').setup {
+require('telescope').setup {
   defaults = {
     mappings = {
       i = {
@@ -382,7 +421,8 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
+      'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -510,6 +550,7 @@ require('which-key').register {
 -- before setting up the servers.
 require('mason').setup()
 require('mason-lspconfig').setup()
+require 'lspconfig'.marksman.setup {}
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
