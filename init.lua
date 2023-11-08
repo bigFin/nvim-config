@@ -81,34 +81,14 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   'sbdchd/neoformat',
+  require('plugins.twilight'),
   require('plugins.trouble'),
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = require('plugins.todo-comments')
   },
-  {
-    "nvim-neorg/neorg",
-    build = ":Neorg sync-parsers",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("neorg").setup {
-        load = {
-          ["core.defaults"] = {},  -- Loads default behaviour
-          ["core.concealer"] = {}, -- Adds pretty icons to your documents
-          ["core.dirman"] = {      -- Manages Neorg workspaces
-            config = {
-              workspaces = {
-                logseq = "/Storage/logseq",
-                journals = "/Storage/logseq/journals",
-                avenue = "/Code/avenueOrg"
-              },
-            },
-          },
-        },
-      }
-    end,
-  },
+  -- require('plugins.neorg'),
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -135,63 +115,7 @@ require('lazy').setup({
       "nvim-telescope/telescope-live-grep-args.nvim",
       "xiyaowong/telescope-emoji.nvim",
     },
-    config = function()
-      require("telescope").setup({
-        extensions = {
-          undo = {
-            -- telescope-undo.nvim config, see below
-          },
-          emoji = {
-            action = function(emoji)
-              -- argument emoji is a table.
-              -- {name="", value="", cagegory="", description=""}
-              vim.fn.setreg("*", emoji.value)
-              print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
-              vim.api.nvim_put({ emoji.value }, 'c', false, true)
-            end,
-          }
-        },
-      })
-
-      require("telescope").load_extension("undo")
-      vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
-      require("telescope").load_extension("emoji")
-      vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
-      require("telescope").load_extension("live_grep_args")
-      vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-    end,
-    config = function()
-      return {
-        "epwalsh/obsidian.nvim",
-        lazy = true,
-        event = {
-          -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-          -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-          "BufReadPre path/to/my-vault/**.md",
-          "BufNewFile path/to/my-vault/**.md",
-        },
-        dependencies = {
-          -- Required.
-          "nvim-lua/plenary.nvim",
-
-          -- see below for full list of optional dependencies 👇
-        },
-        opts = {
-          workspaces = {
-            {
-              name = "logseq",
-              path = "SSD500/logseq",
-            },
-            {
-              name = "avenueIntelligence",
-              path = "/SSD500/Code/avenueIntelligence logseq",
-            },
-          },
-
-          -- see below for full list of options 👇
-        },
-      }
-    end,
+    require('plugins.telescope'),
   }
   , {
   -- Autocompletion
@@ -332,9 +256,6 @@ require('lazy').setup({
   --       Uncomment any of the lines below to enable them.
   require 'plugins.autoformat',
   require 'plugins.debug',
-
-  -- require 'plugins.neorg',
-  require 'plugins.obsidian',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
