@@ -243,7 +243,7 @@ require('lazy').setup({
   require 'plugins.obsidian',
   require 'plugins.neorg',
   'ekickx/clipboard-image.nvim',
-  { import = 'custom.plugins' },
+  { import = 'custom.plugins.nvim-ufo' },
 }, {})
 
 -- [[ Setting options ]]
