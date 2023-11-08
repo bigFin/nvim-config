@@ -4,53 +4,11 @@ require "keymaps"
 require "Lazy"
 require "autocommands"
 ]]
---
-
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-  And then you can explore or search through `:help lua-guide`
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
--- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- Install package manager
---    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -72,7 +30,6 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
-  -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins
   'tpope/vim-fugitive',
@@ -81,14 +38,11 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   'sbdchd/neoformat',
-  require('plugins.twilight'),
-  require('plugins.trouble'),
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = require('plugins.todo-comments')
   },
-  -- require('plugins.neorg'),
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -107,31 +61,53 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
-  {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "debugloop/telescope-undo.nvim",
-      "nvim-telescope/telescope-live-grep-args.nvim",
-      "xiyaowong/telescope-emoji.nvim",
-    },
-    require('plugins.telescope'),
-  }
-  , {
-  -- Autocompletion
-  'hrsh7th/nvim-cmp',
+  "nvim-telescope/telescope.nvim",
   dependencies = {
-    -- Snippet Engine & its associated nvim-cmp source
-    'L3MON4D3/LuaSnip',
-    'saadparwaiz1/cmp_luasnip',
-
-    -- Adds LSP completion capabilities
-    'hrsh7th/cmp-nvim-lsp',
-
-    -- Adds a number of user-friendly snippets
-    'rafamadriz/friendly-snippets',
+    "nvim-lua/plenary.nvim",
+    "debugloop/telescope-undo.nvim",
+    "nvim-telescope/telescope-live-grep-args.nvim",
+    "xiyaowong/telescope-emoji.nvim",
   },
-},
+  config = function()
+    require("telescope").setup({
+      extensions = {
+        undo = {
+          -- telescope-undo.nvim config, see below
+        },
+        emoji = {
+          action = function(emoji)
+            -- argument emoji is a table.
+            -- {name="", value="", cagegory="", description=""}
+            vim.fn.setreg("*", emoji.value)
+            print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
+            vim.api.nvim_put({ emoji.value }, 'c', false, true)
+          end,
+        }
+      },
+    })
+
+    require("telescope").load_extension("undo")
+    vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
+    require("telescope").load_extension("emoji")
+    vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
+    require("telescope").load_extension("live_grep_args")
+    vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+  end,
+  {
+    -- Autocompletion
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      -- Snippet Engine & its associated nvim-cmp source
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+
+      -- Adds LSP completion capabilities
+      'hrsh7th/cmp-nvim-lsp',
+
+      -- Adds a number of user-friendly snippets
+      'rafamadriz/friendly-snippets',
+    },
+  },
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',          opts = {} },
   {
@@ -262,8 +238,12 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  --   { import = 'custom.plugins' },
-
+  require 'plugins.trouble',
+  require 'plugins.twilight',
+  require 'plugins.obsidian',
+  require 'plugins.neorg',
+  'ekickx/clipboard-image.nvim',
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -542,7 +522,6 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
-
 -- nvim-tree
 -- disable netrw at the very start of your init.lua
 vim.g.loaded_netrw = 1
@@ -551,10 +530,6 @@ vim.g.loaded_netrwPlugin = 1
 -- set termguicolors to enable highlight groups
 vim.opt.termguicolors = true
 
--- empty setup using defaults
--- require("nvim-tree").setup()
-
--- OR setup with some options
 require("nvim-tree").setup({
   sort_by = "case_sensitive",
   view = {
