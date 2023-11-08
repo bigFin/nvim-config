@@ -70,6 +70,7 @@ vim.opt.rtp:prepend(lazypath)
 --
 --  You can also configure plugins after the setup call,
 --    as they will be available in your neovim runtime.
+package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
@@ -80,10 +81,33 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   'sbdchd/neoformat',
+  require('plugins.trouble'),
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = require('plugins.todo-comments')
+  },
+  {
+    "nvim-neorg/neorg",
+    build = ":Neorg sync-parsers",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("neorg").setup {
+        load = {
+          ["core.defaults"] = {},  -- Loads default behaviour
+          ["core.concealer"] = {}, -- Adds pretty icons to your documents
+          ["core.dirman"] = {      -- Manages Neorg workspaces
+            config = {
+              workspaces = {
+                logseq = "/Storage/logseq",
+                journals = "/Storage/logseq/journals",
+                avenue = "/Code/avenueOrg"
+              },
+            },
+          },
+        },
+      }
+    end,
   },
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -309,8 +333,8 @@ require('lazy').setup({
   require 'plugins.autoformat',
   require 'plugins.debug',
 
+  -- require 'plugins.neorg',
   require 'plugins.obsidian',
-  -- require 'plugins.todo-comments',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
