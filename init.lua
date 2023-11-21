@@ -34,7 +34,7 @@ require('lazy').setup({
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
-
+  "FabijanZulj/blame.nvim",
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   'sbdchd/neoformat',
@@ -561,6 +561,9 @@ require("nvim-tree").setup({
     dotfiles = true,
   },
 })
+
+require("blame").setup({})
+
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
