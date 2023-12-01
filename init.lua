@@ -31,7 +31,31 @@ vim.opt.rtp:prepend(lazypath)
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
 
-  -- Git related plugins
+  "TabbyML/vim-tabby",
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    requires = { { "nvim-lua/plenary.nvim" } }
+  },
+  {
+    "David-Kunz/gen.nvim",
+    opts = {
+      model = "mistral-7bq4", -- The default model to use.
+      display_mode = "split", -- The display mode. Can be "float" or "split".
+      show_prompt = false,    -- Shows the Prompt submitted to Ollama.
+      show_model = false,     -- Displays which model you are using at the beginning of your chat session.
+      no_auto_close = false,  -- Never closes the window automatically.
+      init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
+      -- Function to initialize Ollama
+      command = "curl --silent --no-buffer -X POST http://localhost:11434/api/generate -d $body",
+      -- The command for the Ollama service. You can use placeholders $prompt, $model and $body (shellescaped).
+      -- This can also be a lua function returning a command string, with options as the input parameter.
+      -- The executed command must return a JSON object with { response, context }
+      -- (context property is optional).
+      list_models = '<function>', -- Retrieves a list of model names
+      debug = false               -- Prints errors and the command which is run.
+    }
+  },                              -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
   "FabijanZulj/blame.nvim",
@@ -62,6 +86,11 @@ require('lazy').setup({
       debug = false                 -- Prints errors and the command which is run.
     }
   },
+  {'stevearc/oil.nvim',
+    opts = {},
+    -- Optional dependencies
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -80,38 +109,59 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
-  "nvim-telescope/telescope.nvim",
-  dependencies = {
-    "nvim-lua/plenary.nvim",
-    "debugloop/telescope-undo.nvim",
-    "nvim-telescope/telescope-live-grep-args.nvim",
-    "xiyaowong/telescope-emoji.nvim",
-  },
-  config = function()
-    require("telescope").setup({
-      extensions = {
-        undo = {
-          -- telescope-undo.nvim config, see below
-        },
-        emoji = {
-          action = function(emoji)
-            -- argument emoji is a table.
-            -- {name="", value="", cagegory="", description=""}
-            vim.fn.setreg("*", emoji.value)
-            print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
-            vim.api.nvim_put({ emoji.value }, 'c', false, true)
-          end,
-        }
-      },
-    })
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "debugloop/telescope-undo.nvim",
+      "nvim-telescope/telescope-live-grep-args.nvim",
+      "xiyaowong/telescope-emoji.nvim",
+    },
+    config = function()
+      require("telescope").setup({
+        extensions = {
+          undo = {
+            -- telescope-undo.nvim config, see below
+          },
+          emoji = {
+            action = function(emoji)
+              -- argument emoji is a table.
+              -- {name="", value="", cagegory="", description=""}
+              vim.fn.setreg("*", emoji.value)
+              print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
+              vim.api.nvim_put({ emoji.value }, 'c', false, true)
+            end,
+          },
+          ["ui-select"] = {
+            require("telescope.themes").get_dropdown {
+              -- even more opts
+            }
 
-    require("telescope").load_extension("undo")
-    vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
-    require("telescope").load_extension("emoji")
-    vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
-    require("telescope").load_extension("live_grep_args")
-    vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-  end,
+            -- pseudo code / specification for writing custom displays, like the one
+            -- for "codeactions"
+            -- specific_opts = {
+            --   [kind] = {
+            --     make_indexed = function(items) -> indexed_items, width,
+            --     make_displayer = function(widths) -> displayer
+            --     make_display = function(displayer) -> function(e)
+            --     make_ordinal = function(e) -> string
+            --   },
+            --   -- for example to disable the custom builtin "codeactions" display
+            --      do the following
+            --   codeactions = false,
+            -- }
+          },
+        },
+      })
+      require("telescope").load_extension("undo")
+      vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
+      require("telescope").load_extension("emoji")
+      vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
+      require("telescope").load_extension("live_grep_args")
+      vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+      require("telescope").load_extension("ui-select")
+    end,
+  },
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -259,11 +309,13 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   require 'plugins.trouble',
   require 'plugins.twilight',
-  require 'plugins.obsidian',
-  require 'plugins.neorg',
+  -- require 'plugins.obsidian',
+  -- require 'plugins.neorg',
   'ekickx/clipboard-image.nvim',
-  { import = 'custom.plugins.nvim-ufo' },
+  -- require 'plugins',
+  --  { import = 'custom.plugins.nvim-ufo' },
 }, {})
+
 
 -- [[ Setting options ]]
 -- See `:help vim.o`

@@ -7,15 +7,3 @@ return require('packer').startup(function(use)
         CocInstall coc-vimtex coc-texlab
     --]]
 end)
-
-return {
-  "nvim-tree/nvim-tree.lua",
-  version = "*",
-  lazy = false,
-  dependencies = {
-    "nvim-tree/nvim-web-devicons",
-  },
-  config = function()
-    require("nvim-tree").setup {}
-  end
-}
