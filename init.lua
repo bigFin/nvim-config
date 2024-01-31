@@ -31,7 +31,23 @@ vim.opt.rtp:prepend(lazypath)
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
 
-  "TabbyML/vim-tabby",
+  -- "TabbyML/vim-tabby",
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({})
+    end,
+  },
+  {
+    "zbirenbaum/copilot-cmp",
+    config = function()
+      require("copilot_cmp").setup()
+    end
+  },
+  { 'AndreM222/copilot-lualine' },
+
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -70,11 +86,11 @@ require('lazy').setup({
   {
     "David-Kunz/gen.nvim",
     opts = {
-      model = "mistral",        -- The default model to use.
-      display_mode = "float",   -- The display mode. Can be "float" or "split".
-      show_prompt = false,      -- Shows the Prompt submitted to Ollama.
-      show_model = false,       -- Displays which model you are using at the beginning of your chat session.
-      no_auto_close = false,    -- Never closes the window automatically.
+      model = "mistral",      -- The default model to use.
+      display_mode = "float", -- The display mode. Can be "float" or "split".
+      show_prompt = false,    -- Shows the Prompt submitted to Ollama.
+      show_model = false,     -- Displays which model you are using at the beginning of your chat session.
+      no_auto_close = false,  -- Never closes the window automatically.
       init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
       -- Function to initialize Ollama
       command = "curl --silent --no-buffer -X POST http://localhost:11434/api/generate -d $body",
@@ -82,11 +98,12 @@ require('lazy').setup({
       -- This can also be a lua function returning a command string, with options as the input parameter.
       -- The executed command must return a JSON object with { response, context }
       -- (context property is optional).
-      list_models = '<function>',   -- Retrieves a list of model names
-      debug = false                 -- Prints errors and the command which is run.
+      list_models = '<function>', -- Retrieves a list of model names
+      debug = false               -- Prints errors and the command which is run.
     }
   },
-  {'stevearc/oil.nvim',
+  {
+    'stevearc/oil.nvim',
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -132,25 +149,6 @@ require('lazy').setup({
               vim.api.nvim_put({ emoji.value }, 'c', false, true)
             end,
           },
-          ["ui-select"] = {
-            require("telescope.themes").get_dropdown {
-              -- even more opts
-            }
-
-            -- pseudo code / specification for writing custom displays, like the one
-            -- for "codeactions"
-            -- specific_opts = {
-            --   [kind] = {
-            --     make_indexed = function(items) -> indexed_items, width,
-            --     make_displayer = function(widths) -> displayer
-            --     make_display = function(displayer) -> function(e)
-            --     make_ordinal = function(e) -> string
-            --   },
-            --   -- for example to disable the custom builtin "codeactions" display
-            --      do the following
-            --   codeactions = false,
-            -- }
-          },
         },
       })
       require("telescope").load_extension("undo")
@@ -159,7 +157,6 @@ require('lazy').setup({
       vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
       require("telescope").load_extension("live_grep_args")
       vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-      require("telescope").load_extension("ui-select")
     end,
   },
   {
@@ -178,7 +175,7 @@ require('lazy').setup({
     },
   },
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',          opts = {} },
+  { 'folke/which-key.nvim',     opts = {} },
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
