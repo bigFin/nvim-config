@@ -31,6 +31,12 @@ vim.opt.rtp:prepend(lazypath)
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
 
+  {
+
+
+    'stevearc/conform.nvim',
+    opts = {}
+  },
   -- "TabbyML/vim-tabby",
   {
     "zbirenbaum/copilot.lua",
@@ -548,7 +554,30 @@ require('which-key').register {
 -- before setting up the servers.
 require('mason').setup()
 require('mason-lspconfig').setup()
-
+require('lspconfig').ruff_lsp.setup {
+  on_attach = on_attach,
+  init_options = {
+    settings = {
+      -- Any extra CLI arguments for `ruff` go here.
+      args = {},
+    }
+  }
+}
+require('lspconfig').pyright.setup {
+  on_attach = on_attach,
+  settings = {
+    pyright = {
+      -- Using Ruff's import organizer
+      disableOrganizeImports = true,
+    },
+    python = {
+      analysis = {
+        -- Ignore all files for analysis to exclusively use Ruff for linting
+        ignore = { '*' },
+      },
+    },
+  },
+}
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -558,7 +587,7 @@ local servers = {
   clangd = {},
   gopls = {},
   pyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = {},
   tsserver = {},
   marksman = {},
   lua_ls = {
