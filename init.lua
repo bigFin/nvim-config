@@ -184,7 +184,8 @@ require('lazy').setup({
     },
   },
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',     opts = {} },
+ { 'folke/which-key.nvim',     opts = {} },
+
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -198,6 +199,7 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
+
         vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
 
         -- don't override the built-in and fugitive keymaps
@@ -224,6 +226,7 @@ require('lazy').setup({
     },
   },
   {
+
     'rose-pine/neovim',
     priority = 1000,
     config = function()
@@ -280,7 +283,7 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
-  {
+  { 
     "nvim-tree/nvim-tree.lua",
     version = "*",
     lazy = false,
@@ -300,19 +303,21 @@ require('lazy').setup({
       "MunifTanjim/nui.nvim",
     },
     { "ellisonleao/glow.nvim", config = true, cmd = "Glow" },
-  },
+   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
   require 'plugins.autoformat',
   require 'plugins.debug',
+
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
+
   require 'plugins.trouble',
   require 'plugins.twilight',
   -- require 'plugins.obsidian',
@@ -320,6 +325,7 @@ require('lazy').setup({
   'ekickx/clipboard-image.nvim',
   -- require 'plugins',
   --  { import = 'custom.plugins.nvim-ufo' },
+
 }, {})
 
 
@@ -390,6 +396,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    file_ignore_patterns = {
+      ".cache"
+    },
     mappings = {
       i = {
         ['<C-u>'] = false,
