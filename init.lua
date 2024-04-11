@@ -44,6 +44,19 @@ require('lazy').setup({
     end,
   },
   {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    branch = "canary",
+    dependencies = {
+      { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
+      { "nvim-lua/plenary.nvim" },  -- for curl, log wrapper
+    },
+    opts = {
+      debug = true, -- Enable debugging
+      -- See Configuration section for rest
+    },
+    -- See Commands section for default commands if you want to lazy load on them
+  },
+  {
     "zbirenbaum/copilot-cmp",
     config = function()
       require("copilot_cmp").setup()
@@ -56,25 +69,6 @@ require('lazy').setup({
     branch = "harpoon2",
     requires = { { "nvim-lua/plenary.nvim" } }
   },
-  {
-    "David-Kunz/gen.nvim",
-    opts = {
-      model = "mistral-7bq4", -- The default model to use.
-      display_mode = "split", -- The display mode. Can be "float" or "split".
-      show_prompt = false,    -- Shows the Prompt submitted to Ollama.
-      show_model = false,     -- Displays which model you are using at the beginning of your chat session.
-      no_auto_close = false,  -- Never closes the window automatically.
-      init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
-      -- Function to initialize Ollama
-      command = "curl --silent --no-buffer -X POST http://localhost:11434/api/generate -d $body",
-      -- The command for the Ollama service. You can use placeholders $prompt, $model and $body (shellescaped).
-      -- This can also be a lua function returning a command string, with options as the input parameter.
-      -- The executed command must return a JSON object with { response, context }
-      -- (context property is optional).
-      list_models = '<function>', -- Retrieves a list of model names
-      debug = false               -- Prints errors and the command which is run.
-    }
-  },                              -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
   "FabijanZulj/blame.nvim",
@@ -85,25 +79,6 @@ require('lazy').setup({
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = require('plugins.todo-comments')
-  },
-  {
-    "David-Kunz/gen.nvim",
-    opts = {
-      model = "mistral",      -- The default model to use.
-      display_mode = "float", -- The display mode. Can be "float" or "split".
-      show_prompt = false,    -- Shows the Prompt submitted to Ollama.
-      show_model = false,     -- Displays which model you are using at the beginning of your chat session.
-      no_auto_close = false,  -- Never closes the window automatically.
-      init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
-      -- Function to initialize Ollama
-      command = "curl --silent --no-buffer -X POST http://localhost:11434/api/generate -d $body",
-      -- The command for the Ollama service. You can use placeholders $prompt, $model and $body (shellescaped).
-      -- This can also be a lua function returning a command string, with options as the input parameter.
-      -- The executed command must return a JSON object with { response, context }
-      -- (context property is optional).
-      list_models = '<function>', -- Retrieves a list of model names
-      debug = false               -- Prints errors and the command which is run.
-    }
   },
   {
     'stevearc/oil.nvim',
@@ -225,17 +200,37 @@ require('lazy').setup({
     end,
   },
   {
-    -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
+    requires = { 'kyazdani42/nvim-web-devicons', opt = true },
+    config = function()
+      require('lualine').setup {
+        options = {
+          icons_enabled = true,
+          theme = 'rose-pine',
+          component_separators = '|',
+          section_separators = '',
+        },
+        sections = {
+          lualine_c = {
+            { 'filename' },
+            {
+              function()
+                local current_time = os.time()
+                local last_modified = vim.fn.getftime(vim.fn.expand('%:p'))
+                if last_modified == -1 then
+                  return 'Buffer not saved'
+                end
+                local time_diff = os.difftime(current_time, last_modified)
+                local hours = math.floor(time_diff / 3600)
+                local minutes = math.floor((time_diff % 3600) / 60)
+                local seconds = time_diff % 60
+                return string.format('Saved %02d:%02d:%02d ago', hours, minutes, seconds)
+              end
+            }
+          },
+        },
+      }
+    end,
   },
   {
     -- Add indentation guides even on blank lines
