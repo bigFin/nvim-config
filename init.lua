@@ -30,40 +30,30 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
-
-  -- "TabbyML/vim-tabby",
   {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
+    "melbaldove/llm.nvim",
+    dependencies = { "nvim-neotest/nvim-nio" },
     config = function()
-      require("copilot").setup({
-        suggestion = { enabled = false },
-        panel = { enabled = false },
+      require('llm').setup({
+        -- How long to wait for the request to start returning data.
+        timeout_ms = 10000,
+        -- Extra OpenAI-compatible services to add
+        services = {
+          other_provider = {
+            url = "https://example.com/other-provider/v1/chat/completions",
+            model = "llama3",
+            api_key_name = "OTHER_PROVIDER_API_KEY",
+          }
+        }
       })
+      vim.keymap.set("n", "<leader>m", function() require("llm").create_llm_md() end)
+
+      -- keybinds for prompting with groq
+      vim.keymap.set("n", "<leader>,", function() require("llm").prompt({ replace = false, service = "groq" }) end)
+      vim.keymap.set("v", "<leader>,", function() require("llm").prompt({ replace = false, service = "groq" }) end)
+      vim.keymap.set("v", "<leader>.", function() require("llm").prompt({ replace = true, service = "groq" }) end)
     end,
   },
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "canary",
-    dependencies = {
-      { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
-      { "nvim-lua/plenary.nvim" },  -- for curl, log wrapper
-    },
-    opts = {
-      debug = true, -- Enable debugging
-      -- See Configuration section for rest
-    },
-    -- See Commands section for default commands if you want to lazy load on them
-  },
-  {
-    "zbirenbaum/copilot-cmp",
-    config = function()
-      require("copilot_cmp").setup()
-    end
-  },
-  { 'AndreM222/copilot-lualine' },
-
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -153,7 +143,7 @@ require('lazy').setup({
     },
   },
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',     opts = {} },
+  { 'folke/which-key.nvim',          opts = {} },
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -595,7 +585,6 @@ vim.g.loaded_netrwPlugin = 1
 
 -- set termguicolors to enable highlight groups
 vim.opt.termguicolors = true
-
 require("nvim-tree").setup({
   sort_by = "case_sensitive",
   view = {
