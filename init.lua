@@ -9,6 +9,7 @@ require "autocommands"
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+
 --    `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -30,313 +31,431 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
-  {
-    "melbaldove/llm.nvim",
-    dependencies = { "nvim-neotest/nvim-nio" },
-    config = function()
-      require('llm').setup({
-        -- How long to wait for the request to start returning data.
-        timeout_ms = 10000,
-        -- Extra OpenAI-compatible services to add
-        services = {
-          other_provider = {
-            url = "https://example.com/other-provider/v1/chat/completions",
-            model = "llama3",
-            api_key_name = "OTHER_PROVIDER_API_KEY",
-          }
-        }
-      })
-      vim.keymap.set("n", "<leader>m", function() require("llm").create_llm_md() end)
+    {
+      'yacineMTB/dingllm.nvim',
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        local system_prompt =
+        'You should replace the code that you are sent, only following the comments. Do not talk at all. Only output valid code. Do not provide any backticks that surround the code. Never ever output backticks like this ```. Any comment that is asking you for something should be removed after you satisfy them. Other comments should left alone. Always use .format() for string formatting instead of f-strings to ensure compatibility with GitHub Actions. Do not output backticks'
+        local helpful_prompt =
+        'You are a helpful assistant. What I have sent are my notes so far. You are very curt, yet helpful.'
+        local dingllm = require 'dingllm'
 
-      -- keybinds for prompting with groq
-      vim.keymap.set("n", "<leader>,", function() require("llm").prompt({ replace = false, service = "groq" }) end)
-      vim.keymap.set("v", "<leader>,", function() require("llm").prompt({ replace = false, service = "groq" }) end)
-      vim.keymap.set("v", "<leader>.", function() require("llm").prompt({ replace = true, service = "groq" }) end)
-    end,
-  },
-  {
-    "epwalsh/obsidian.nvim",
-    version = "*", -- recommended, use latest release instead of latest commit
-    lazy = true,
-    ft = "markdown",
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-    -- event = {
-    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-    --   "BufReadPre path/to/my-vault/**.md",
-    --   "BufNewFile path/to/my-vault/**.md",
-    -- },
-    dependencies = {
-      -- Required.
-      "nvim-lua/plenary.nvim",
+        local function groq_replace()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.groq.com/openai/v1/chat/completions',
+            model = 'llama3-70b-8192',
+            api_key_name = 'GROQ_API_KEY',
+            system_prompt = system_prompt,
+            replace = true,
+          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
+        end
 
-      -- see below for full list of optional dependencies 👇
-    },
-    opts = {
-      workspaces = {
-        {
-          name = "personal",
-          path = "/Storage/logseq",
-        },
-        {
-          name = "work",
-          path = "/Code/avenueIntelligence/vault",
-        },
-      },
+        local function groq_help()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.groq.com/openai/v1/chat/completions',
+            model = 'llama3-70b-8192',
+            api_key_name = 'GROQ_API_KEY',
+            system_prompt = helpful_prompt,
+            replace = false,
+          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
+        end
 
-      -- see below for full list of options 👇
-    },
-  },
-  {
-    "ThePrimeagen/harpoon",
-    branch = "harpoon2",
-    requires = { { "nvim-lua/plenary.nvim" } }
-  },
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
-  "FabijanZulj/blame.nvim",
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
-  'sbdchd/neoformat',
-  {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = require('plugins.todo-comments')
-  },
-  {
-    'stevearc/oil.nvim',
-    opts = {},
-    -- Optional dependencies
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-  },
-  -- NOTE: This is where your plugins related to LSP can be installed.
-  --  The configuration is done below. Search for lspconfig to find it below.
-  {
-    -- LSP Configuration & Plugins
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      -- Automatically install LSPs to stdpath for neovim
-      { 'williamboman/mason.nvim', config = true },
-      'williamboman/mason-lspconfig.nvim',
+        local function openai_replace()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.openai.com/v1/chat/completions',
+            model = 'gpt-4o',
+            api_key_name = 'OPENAI_API_KEY',
+            system_prompt = system_prompt,
+            replace = true,
+          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
+        end
 
-      -- Useful status updates for LSP
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
+        local function openai_help()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.openai.com/v1/chat/completions',
+            model = 'gpt-4o',
+            api_key_name = 'OPENAI_API_KEY',
+            system_prompt = helpful_prompt,
+            replace = false,
+          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
+        end
 
-      -- Additional lua configuration, makes nvim stuff amazing!
-      'folke/neodev.nvim',
-    },
-  },
-  {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "debugloop/telescope-undo.nvim",
-      "nvim-telescope/telescope-live-grep-args.nvim",
-      "xiyaowong/telescope-emoji.nvim",
-    },
-    config = function()
-      require("telescope").setup({
-        extensions = {
-          undo = {
-            -- telescope-undo.nvim config, see below
-          },
-          emoji = {
-            action = function(emoji)
-              -- argument emoji is a table.
-              -- {name="", value="", cagegory="", description=""}
-              vim.fn.setreg("*", emoji.value)
-              print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
-              vim.api.nvim_put({ emoji.value }, 'c', false, true)
-            end,
-          },
-        },
-      })
-      require("telescope").load_extension("undo")
-      vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
-      require("telescope").load_extension("emoji")
-      vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
-      require("telescope").load_extension("live_grep_args")
-      vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-    end,
-  },
-  {
-    -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
+        local function anthropic_help()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.anthropic.com/v1/messages',
+            model = 'claude-3-5-sonnet-20240620',
+            api_key_name = 'ANTHROPIC_API_KEY',
+            system_prompt = helpful_prompt,
+            replace = false,
+          }, dingllm.make_anthropic_spec_curl_args, dingllm.handle_anthropic_spec_data)
+        end
 
-      -- Adds LSP completion capabilities
-      'hrsh7th/cmp-nvim-lsp',
+        local function anthropic_replace()
+          dingllm.invoke_llm_and_stream_into_editor({
+            url = 'https://api.anthropic.com/v1/messages',
+            model = 'claude-3-5-sonnet-20240620',
+            api_key_name = 'ANTHROPIC_API_KEY',
+            system_prompt = system_prompt,
+            replace = true,
+          }, dingllm.make_anthropic_spec_curl_args, dingllm.handle_anthropic_spec_data)
+        end
 
-      -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
-    },
-  },
-  -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',          opts = {} },
-  {
-    -- Adds git releated signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      -- See `:help gitsigns.txt`
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-      on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
-
-        -- don't override the built-in and fugitive keymaps
-        local gs = package.loaded.gitsigns
-        vim.keymap.set({ 'n', 'v' }, ']c', function()
-          if vim.wo.diff then
-            return ']c'
-          end
-          vim.schedule(function()
-            gs.next_hunk()
-          end)
-          return '<Ignore>'
-        end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
-        vim.keymap.set({ 'n', 'v' }, '[c', function()
-          if vim.wo.diff then
-            return '[c'
-          end
-          vim.schedule(function()
-            gs.prev_hunk()
-          end)
-          return '<Ignore>'
-        end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>k', groq_replace, { desc = 'llm groq' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>K', groq_help, { desc = 'llm groq_help' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>L', openai_help, { desc = 'llm openai_help' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>l', openai_replace, { desc = 'llm openai' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>I', anthropic_help, { desc = 'llm anthropic_help' })
+        vim.keymap.set({ 'n', 'v' }, '<leader>i', anthropic_replace, { desc = 'llm anthropic' })
       end,
     },
-  },
-  {
-    'rose-pine/neovim',
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'rose-pine'
-    end,
-  },
-  {
-    'nvim-lualine/lualine.nvim',
-    requires = { 'kyazdani42/nvim-web-devicons', opt = true },
-    config = function()
-      require('lualine').setup {
-        options = {
-          icons_enabled = true,
-          theme = 'rose-pine',
-          component_separators = '|',
-          section_separators = '',
-        },
-        sections = {
-          lualine_c = {
-            { 'filename' },
-            {
-              function()
-                local current_time = os.time()
-                local last_modified = vim.fn.getftime(vim.fn.expand('%:p'))
-                if last_modified == -1 then
-                  return 'Buffer not saved'
-                end
-                local time_diff = os.difftime(current_time, last_modified)
-                local hours = math.floor(time_diff / 3600)
-                local minutes = math.floor((time_diff % 3600) / 60)
-                local seconds = time_diff % 60
-                return string.format('Saved %02d:%02d:%02d ago', hours, minutes, seconds)
-              end
-            }
+    {
+      'goolord/alpha-nvim',
+      dependencies = { 'nvim-tree/nvim-web-devicons' },
+      config = function()
+        local alpha = require 'alpha'
+        local theme = require 'alpha.themes.startify'
+        theme.section.header.val = {
+          [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⠀⡠⢠⡀⠄⠀⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠀⠀⠀⠀⠀⡠⡀⠄⠄⠊⠀⢲⠠⡉⠄⠂⠀⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠀⠀⠀⢠⣤⡯⠂⢀⣀⢤⡢⠞⠀⢃⠶⢄⢀⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠀⠀⢀⣿⡟⣰⠒⠙⠛⠎⠴⣛⣚⢡⡞⠘⡟⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠀⣈⣿⡟⠷⠇⠀⠀⠀⠀⢁   ⢣⡐⣱⠆⠀⠀⠀⠀⠀]],
+          [[⢠⣾⡿⠉⠀⠀⠀⠀⢠   ⣾⣿⣿⢮⣉⣽⣁⠀⢀⢔⠇⠀]],
+          [[⣸⣿⠀⠀⠀  ⡄   ⣿⠛  ⠀⠀⠀⢰⡁⢸⣷⠀⠀]],
+          [[⠻⠃⠀⠀⡄⣆⠙⢿⣖⠃⢿⣛⣀⣀⠀⠀⠀⠀⢠⢿⠛⠁⠀⠀]],
+          [[⣷⠀⢠⠀⠙⢿⣿⣷⣶⣤⣴⡽  ⠀⠀⠀⠀⠀⠻⣄⠀⠀⠀]],
+          [[⢿⡇⠀⠀⠀⠘⠻⠈⢽⠿⣭⡵⠳⣤⣀⣀⣠⣤⠤⠖⠃⠀⠀⠀]],
+          [[⢸⣷⣿⣤⣤⣤⣀⡀⠀⢀⣿⠉⢀⠀⠁⠉⠀⢊⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠋⠋⠙⠻⣿⣿⡿⣶⣿⠟⠐⠢⠧⣄⣀⣀⣼⣀⣀⠀⠀⠀⠀]],
+          [[⠀⠀⠀⠀⠀⠈⠹⣄⠉⠁⠀⠀⠀⠀⠀⠀⠉⠉⠉⡽⠛⣹⠃⠀]],
+          [[⠀⠀⠀⠀⠀⠀⣸⠓⠧⣦⣄⣀⠢⣀⠀⠀⠀⢀⡜⣡⠞⠁⠀⠀]],
+          [[⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠙⠛⢶⣕⣄⠀⣮⣾⠁⠀⠀⠀⠀]],
+          [[⠀⠀⠀⠠⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠈⠛⠷⣾⡹⣆⠀⠀⠀⠀]],
+          [[⠀⠀⠐⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠹⣌⣇⠀⠀⠀]],
+          [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+          [[⠀⠀SEE YOU SPACE COWBOY⠀⠀]]
+        }
+        alpha.setup(theme.config)
+      end,
+    },
+    {
+      "yacineMTB/pyrepl.nvim",
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        require("pyrepl").setup({
+          url = "http://localhost:5000/execute"
+        })
+      end,
+      keys = {
+        { "<leader>p", function() require('pyrepl').run_selected_lines() end, mode = "v", desc = "Run selected lines" }
+      }
+    },
+    { "nvim-neotest/nvim-nio" },
+    {
+      "epwalsh/obsidian.nvim",
+      version = "*", -- recommended, use latest release instead of latest commit
+      lazy = true,
+      ft = "markdown",
+      -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+      -- event = {
+      --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+      --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+      --   "BufReadPre path/to/my-vault/**.md",
+      --   "BufNewFile path/to/my-vault/**.md",
+      -- },
+      dependencies = {
+        -- Required.
+        "nvim-lua/plenary.nvim",
+
+        -- see below for full list of optional dependencies 👇
+      },
+      opts = {
+        workspaces = {
+          {
+            name = "personal",
+            path = "/Storage/logseq",
+          },
+          {
+            name = "work",
+            path = "/Code/avenueIntelligence/vault",
           },
         },
-      }
-    end,
-  },
-  {
-    -- Add indentation guides even on blank lines
-    'lukas-reineke/indent-blankline.nvim',
-    main = "ibl",
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help indent_blankline.txt`
-    opts = {
+
+        -- see below for full list of options 👇
+      },
     },
-  },
-
-  -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim',         opts = {} },
-
-  -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
-
-  -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-  -- Only load if `make` is available. Make sure you have the system
-  -- requirements installed.
-  {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    -- NOTE: If you are having trouble with this installation,
-    --       refer to the README for telescope-fzf-native for more instructions.
-    build = 'make',
-    cond = function()
-      return vim.fn.executable 'make' == 1
-    end,
-  },
-
-  {
-    -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
+    {
+      "ThePrimeagen/harpoon",
+      branch = "harpoon2",
+      requires = { { "nvim-lua/plenary.nvim" } }
     },
-    build = ':TSUpdate',
-  },
-  {
-    "nvim-tree/nvim-tree.lua",
-    version = "*",
-    lazy = false,
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
+    'tpope/vim-fugitive',
+    'tpope/vim-rhubarb',
+    "FabijanZulj/blame.nvim",
+    -- Detect tabstop and shiftwidth automatically
+    'tpope/vim-sleuth',
+    'sbdchd/neoformat',
+    {
+      "folke/todo-comments.nvim",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      opts = require('plugins.todo-comments')
     },
+    {
+      'stevearc/oil.nvim',
+      opts = {},
+      -- Optional dependencies
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+    },
+    -- NOTE: This is where your plugins related to LSP can be installed.
+    --  The configuration is done below. Search for lspconfig to find it below.
+    {
+      -- LSP Configuration & Plugins
+      'neovim/nvim-lspconfig',
+      dependencies = {
+        -- Automatically install LSPs to stdpath for neovim
+        { 'williamboman/mason.nvim', config = true },
+        'williamboman/mason-lspconfig.nvim',
+
+        -- Useful status updates for LSP
+        -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+        { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
+
+        -- Additional lua configuration, makes nvim stuff amazing!
+        'folke/neodev.nvim',
+      },
+    },
+    {
+      "nvim-telescope/telescope.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "debugloop/telescope-undo.nvim",
+        "nvim-telescope/telescope-live-grep-args.nvim",
+        "xiyaowong/telescope-emoji.nvim",
+      },
+      config = function()
+        require("telescope").setup({
+          extensions = {
+            undo = {
+              -- telescope-undo.nvim config, see below
+            },
+            emoji = {
+              action = function(emoji)
+                -- argument emoji is a table.
+                -- {name="", value="", cagegory="", description=""}
+                vim.fn.setreg("*", emoji.value)
+                print([[Press p or "*p to paste this emoji]] .. emoji.value) -- insert emoji when picked
+                vim.api.nvim_put({ emoji.value }, 'c', false, true)
+              end,
+            },
+          },
+        })
+        require("telescope").load_extension("undo")
+        vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
+        require("telescope").load_extension("emoji")
+        vim.keymap.set("n", "<leader>y", "<cmd>Telescope undo<cr>")
+        require("telescope").load_extension("live_grep_args")
+        vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+      end,
+    },
+    {
+      -- Autocompletion
+      'hrsh7th/nvim-cmp',
+      dependencies = {
+        -- Snippet Engine & its associated nvim-cmp source
+        'L3MON4D3/LuaSnip',
+        'saadparwaiz1/cmp_luasnip',
+
+        -- Adds LSP completion capabilities
+        'hrsh7th/cmp-nvim-lsp',
+
+        -- Adds a number of user-friendly snippets
+        'rafamadriz/friendly-snippets',
+      },
+    },
+    -- Useful plugin to show you pending keybinds.
+    { 'folke/which-key.nvim', opts = {} },
+    {
+      -- Adds git releated signs to the gutter, as well as utilities for managing changes
+      'lewis6991/gitsigns.nvim',
+      opts = {
+        -- See `:help gitsigns.txt`
+        signs = {
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+        },
+        on_attach = function(bufnr)
+          vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk,
+            { buffer = bufnr, desc = 'Preview git hunk' })
+
+          -- don't override the built-in and fugitive keymaps
+          local gs = package.loaded.gitsigns
+          vim.keymap.set({ 'n', 'v' }, ']c', function()
+            if vim.wo.diff then
+              return ']c'
+            end
+            vim.schedule(function()
+              gs.next_hunk()
+            end)
+            return '<Ignore>'
+          end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
+          vim.keymap.set({ 'n', 'v' }, '[c', function()
+            if vim.wo.diff then
+              return '[c'
+            end
+            vim.schedule(function()
+              gs.prev_hunk()
+            end)
+            return '<Ignore>'
+          end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+        end,
+      },
+    },
+    {
+      'rose-pine/neovim',
+      priority = 1000,
+      config = function()
+        vim.cmd.colorscheme 'rose-pine'
+      end,
+    },
+    {
+      'nvim-lualine/lualine.nvim',
+      requires = { 'kyazdani42/nvim-web-devicons', opt = true },
+      config = function()
+        require('lualine').setup {
+          options = {
+            icons_enabled = true,
+            theme = 'rose-pine',
+            component_separators = '|',
+            section_separators = '',
+          },
+          sections = {
+            lualine_c = {
+              { 'filename' },
+              {
+                function()
+                  local current_time = os.time()
+                  local last_modified = vim.fn.getftime(vim.fn.expand('%:p'))
+                  if last_modified == -1 then
+                    return 'Buffer not saved'
+                  end
+                  local time_diff = os.difftime(current_time, last_modified)
+                  local hours = math.floor(time_diff / 3600)
+                  local minutes = math.floor((time_diff % 3600) / 60)
+                  local seconds = time_diff % 60
+                  return string.format('Saved %02d:%02d:%02d ago', hours, minutes, seconds)
+                end
+              }
+            },
+          },
+        }
+      end,
+    },
+    {
+      -- Add indentation guides even on blank lines
+      'lukas-reineke/indent-blankline.nvim',
+      main = "ibl",
+      -- Enable `lukas-reineke/indent-blankline.nvim`
+      -- See `:help indent_blankline.txt`
+      opts = {
+      },
+    },
+
+    -- "gc" to comment visual regions/lines
+    { 'numToStr/Comment.nvim',         opts = {} },
+
+    -- Fuzzy Finder (files, lsp, etc)
+    { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
+
+    -- Fuzzy Finder Algorithm which requires local dependencies to be built.
+    -- Only load if `make` is available. Make sure you have the system
+    -- requirements installed.
+    {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      -- NOTE: If you are having trouble with this installation,
+      --       refer to the README for telescope-fzf-native for more instructions.
+      build = 'make',
+      cond = function()
+        return vim.fn.executable 'make' == 1
+      end,
+    },
+
+    {
+      -- Highlight, edit, and navigate code
+      'nvim-treesitter/nvim-treesitter',
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter-textobjects',
+      },
+      build = ':TSUpdate',
+    },
+    {
+      "nvim-tree/nvim-tree.lua",
+      version = "*",
+      lazy = false,
+      dependencies = {
+        "nvim-tree/nvim-web-devicons",
+      },
+      config = function()
+        require("nvim-tree").setup {}
+      end,
+    },
+    {
+      "nvim-neo-tree/neo-tree.nvim",
+      branch = "v3.x",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+        "MunifTanjim/nui.nvim",
+      },
+      { "ellisonleao/glow.nvim", config = true, cmd = "Glow" },
+    },
+
+    -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
+    --       These are some example plugins that I've included in the kickstart repository.
+    --       Uncomment any of the lines below to enable them.
+    require 'plugins.autoformat',
+    require 'plugins.debug',
+    -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+    --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
+    --    up-to-date with whatever is in the kickstart repo.
+    --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+    --
+    --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
+    require 'plugins.trouble',
+    require 'plugins.twilight',
+    require 'plugins.obsidian',
+    -- require 'plugins',
     config = function()
-      require("nvim-tree").setup {}
+      require("plugins.obsidian").setup {}
     end,
+    { -- import = 'custom.plugins.nvim-ufo'
+      -- import = 'custom.plugins.dingllm'
+    },
   },
   {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
+    ui = {
+      -- If you are using a Nerd Font: set icons to an empty table which will use the
+      -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+      icons = vim.g.have_nerd_font and {} or {
+        cmd = '⌘',
+        config = '🛠',
+        event = '📅',
+        ft = '📂',
+        init = '⚙',
+        keys = '🗝',
+        plugin = '🔌',
+        runtime = '💻',
+        require = '🌙',
+        source = '📄',
+        start = '🚀',
+        task = '📌',
+        lazy = '💤 ',
+      },
     },
-    { "ellisonleao/glow.nvim", config = true, cmd = "Glow" },
-  },
-
-  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-  --       These are some example plugins that I've included in the kickstart repository.
-  --       Uncomment any of the lines below to enable them.
-  require 'plugins.autoformat',
-  require 'plugins.debug',
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-  --    up-to-date with whatever is in the kickstart repo.
-  --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --
-  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  require 'plugins.trouble',
-  require 'plugins.twilight',
-  config = function()
-    require("plugins.obsidian").setup {}
-  end,
-  require 'plugins.obsidian',
-  -- require 'plugins.neorg',
-  'ekickx/clipboard-image.nvim',
-  -- require 'plugins',
-  --  { import = 'custom.plugins.nvim-ufo' },
-}, {})
-
+  }, {})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -389,6 +508,9 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- Map <C-t> to exit terminal insert mode and enter normal mode
+vim.keymap.set('t', '<C-t>', '<C-\\><C-n>', { noremap = true, silent = true })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
