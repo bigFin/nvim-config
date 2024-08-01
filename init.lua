@@ -22,6 +22,13 @@ if not vim.loop.fs_stat(lazypath) then
     lazypath,
   }
 end
+-- Set conceallevel to 1 or 2 for Obsidian.nvim
+vim.cmd [[
+  augroup ObsidianConfig
+    autocmd!
+    autocmd FileType markdown setlocal conceallevel=2
+  augroup END
+]]
 vim.opt.rtp:prepend(lazypath)
 
 -- NOTE: Here is where you install your plugins.
@@ -31,84 +38,7 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
-    {
-      'yacineMTB/dingllm.nvim',
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      config = function()
-        local system_prompt =
-        'You should replace the code that you are sent, only following the comments. Do not talk at all. Only output valid code. Do not provide any backticks that surround the code. Never ever output backticks like this ```. Any comment that is asking you for something should be removed after you satisfy them. Other comments should left alone. Always use .format() for string formatting instead of f-strings to ensure compatibility with GitHub Actions. Do not output backticks'
-        local helpful_prompt =
-        'You are a helpful assistant. What I have sent are my notes so far. You are very curt, yet helpful.'
-        local dingllm = require 'dingllm'
-
-        local function groq_replace()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.groq.com/openai/v1/chat/completions',
-            model = 'llama3-70b-8192',
-            api_key_name = 'GROQ_API_KEY',
-            system_prompt = system_prompt,
-            replace = true,
-          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
-        end
-
-        local function groq_help()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.groq.com/openai/v1/chat/completions',
-            model = 'llama3-70b-8192',
-            api_key_name = 'GROQ_API_KEY',
-            system_prompt = helpful_prompt,
-            replace = false,
-          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
-        end
-
-        local function openai_replace()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.openai.com/v1/chat/completions',
-            model = 'gpt-4o',
-            api_key_name = 'OPENAI_API_KEY',
-            system_prompt = system_prompt,
-            replace = true,
-          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
-        end
-
-        local function openai_help()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.openai.com/v1/chat/completions',
-            model = 'gpt-4o',
-            api_key_name = 'OPENAI_API_KEY',
-            system_prompt = helpful_prompt,
-            replace = false,
-          }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
-        end
-
-        local function anthropic_help()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.anthropic.com/v1/messages',
-            model = 'claude-3-5-sonnet-20240620',
-            api_key_name = 'ANTHROPIC_API_KEY',
-            system_prompt = helpful_prompt,
-            replace = false,
-          }, dingllm.make_anthropic_spec_curl_args, dingllm.handle_anthropic_spec_data)
-        end
-
-        local function anthropic_replace()
-          dingllm.invoke_llm_and_stream_into_editor({
-            url = 'https://api.anthropic.com/v1/messages',
-            model = 'claude-3-5-sonnet-20240620',
-            api_key_name = 'ANTHROPIC_API_KEY',
-            system_prompt = system_prompt,
-            replace = true,
-          }, dingllm.make_anthropic_spec_curl_args, dingllm.handle_anthropic_spec_data)
-        end
-
-        vim.keymap.set({ 'n', 'v' }, '<leader>k', groq_replace, { desc = 'llm groq' })
-        vim.keymap.set({ 'n', 'v' }, '<leader>K', groq_help, { desc = 'llm groq_help' })
-        vim.keymap.set({ 'n', 'v' }, '<leader>L', openai_help, { desc = 'llm openai_help' })
-        vim.keymap.set({ 'n', 'v' }, '<leader>l', openai_replace, { desc = 'llm openai' })
-        vim.keymap.set({ 'n', 'v' }, '<leader>I', anthropic_help, { desc = 'llm anthropic_help' })
-        vim.keymap.set({ 'n', 'v' }, '<leader>i', anthropic_replace, { desc = 'llm anthropic' })
-      end,
-    },
+    { 'echasnovski/mini.nvim', version = false },
     {
       'goolord/alpha-nvim',
       dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -152,39 +82,6 @@ require('lazy').setup({
       }
     },
     { "nvim-neotest/nvim-nio" },
-    {
-      "epwalsh/obsidian.nvim",
-      version = "*", -- recommended, use latest release instead of latest commit
-      lazy = true,
-      ft = "markdown",
-      -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-      -- event = {
-      --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-      --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-      --   "BufReadPre path/to/my-vault/**.md",
-      --   "BufNewFile path/to/my-vault/**.md",
-      -- },
-      dependencies = {
-        -- Required.
-        "nvim-lua/plenary.nvim",
-
-        -- see below for full list of optional dependencies 👇
-      },
-      opts = {
-        workspaces = {
-          {
-            name = "personal",
-            path = "/Storage/logseq",
-          },
-          {
-            name = "work",
-            path = "/Code/avenueIntelligence/vault",
-          },
-        },
-
-        -- see below for full list of options 👇
-      },
-    },
     {
       "ThePrimeagen/harpoon",
       branch = "harpoon2",
@@ -274,7 +171,7 @@ require('lazy').setup({
       },
     },
     -- Useful plugin to show you pending keybinds.
-    { 'folke/which-key.nvim', opts = {} },
+    { 'folke/which-key.nvim',          opts = {} },
     {
       -- Adds git releated signs to the gutter, as well as utilities for managing changes
       'lewis6991/gitsigns.nvim',
@@ -427,9 +324,51 @@ require('lazy').setup({
     require 'plugins.trouble',
     require 'plugins.twilight',
     require 'plugins.obsidian',
+    require 'plugins.dingllm',
+
     -- require 'plugins',
     config = function()
-      require("plugins.obsidian").setup {}
+      require("plugins.obsidian").setup({
+        workspaces = {
+          {
+            name = "personal",
+            path = "/Storage/logseq",
+          },
+          {
+            name = "work",
+            path = "/Code/avenueIntelligence/avenueIntelligence Logseq",
+          },
+        },
+
+        daily_notes = {
+          -- Optional, if you keep daily notes in a separate directory.
+          folder = "journals",
+          -- Optional, if you want to change the date format for the ID of daily notes.
+          date_format = "%Y_%m_%d",
+          -- Optional, if you want to change the date format of the default alias of daily notes.
+          alias_format = "%B %-d, %Y",
+          -- Optional, default tags to add to each new daily note created.
+          default_tags = { "journals" },
+          -- Optional, if you want to automatically insert a template from your template directory like 'daily.md'
+          template = nil
+        },
+
+        -- Optional, completion of wiki links, local markdown links, and tags using nvim-cmp.
+        completion = {
+          -- Set to false to disable completion.
+          nvim_cmp = true,
+          -- Trigger completion at 2 chars.
+          min_chars = 2,
+          -- Custom wiki link function.
+          wiki_link_func = function(link)
+            -- Your custom function to handle wiki links.
+            return link
+          end,
+        },
+
+        -- New notes location (moved to top-level).
+        new_notes_location = "pages",
+      })
     end,
     { -- import = 'custom.plugins.nvim-ufo'
       -- import = 'custom.plugins.dingllm'
