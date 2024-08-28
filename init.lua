@@ -40,36 +40,6 @@ package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
     { 'echasnovski/mini.nvim', version = false },
     {
-      'goolord/alpha-nvim',
-      dependencies = { 'nvim-tree/nvim-web-devicons' },
-      config = function()
-        local alpha = require 'alpha'
-        local theme = require 'alpha.themes.startify'
-        theme.section.header.val = {
-          [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⠀⡠⢠⡀⠄⠀⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠀⠀⠀⠀⠀⡠⡀⠄⠄⠊⠀⢲⠠⡉⠄⠂⠀⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠀⠀⠀⢠⣤⡯⠂⢀⣀⢤⡢⠞⠀⢃⠶⢄⢀⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠀⠀⢀⣿⡟⣰⠒⠙⠛⠎⠴⣛⣚⢡⡞⠘⡟⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠀⣈⣿⡟⠷⠇⠀⠀⠀⠀⢁   ⢣⡐⣱⠆⠀⠀⠀⠀⠀]],
-          [[⢠⣾⡿⠉⠀⠀⠀⠀⢠   ⣾⣿⣿⢮⣉⣽⣁⠀⢀⢔⠇⠀]],
-          [[⣸⣿⠀⠀⠀  ⡄   ⣿⠛  ⠀⠀⠀⢰⡁⢸⣷⠀⠀]],
-          [[⠻⠃⠀⠀⡄⣆⠙⢿⣖⠃⢿⣛⣀⣀⠀⠀⠀⠀⢠⢿⠛⠁⠀⠀]],
-          [[⣷⠀⢠⠀⠙⢿⣿⣷⣶⣤⣴⡽  ⠀⠀⠀⠀⠀⠻⣄⠀⠀⠀]],
-          [[⢿⡇⠀⠀⠀⠘⠻⠈⢽⠿⣭⡵⠳⣤⣀⣀⣠⣤⠤⠖⠃⠀⠀⠀]],
-          [[⢸⣷⣿⣤⣤⣤⣀⡀⠀⢀⣿⠉⢀⠀⠁⠉⠀⢊⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠋⠋⠙⠻⣿⣿⡿⣶⣿⠟⠐⠢⠧⣄⣀⣀⣼⣀⣀⠀⠀⠀⠀]],
-          [[⠀⠀⠀⠀⠀⠈⠹⣄⠉⠁⠀⠀⠀⠀⠀⠀⠉⠉⠉⡽⠛⣹⠃⠀]],
-          [[⠀⠀⠀⠀⠀⠀⣸⠓⠧⣦⣄⣀⠢⣀⠀⠀⠀⢀⡜⣡⠞⠁⠀⠀]],
-          [[⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠙⠛⢶⣕⣄⠀⣮⣾⠁⠀⠀⠀⠀]],
-          [[⠀⠀⠀⠠⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠈⠛⠷⣾⡹⣆⠀⠀⠀⠀]],
-          [[⠀⠀⠐⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠹⣌⣇⠀⠀⠀]],
-          [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
-          [[⠀⠀SEE YOU SPACE COWBOY⠀⠀]]
-        }
-        alpha.setup(theme.config)
-      end,
-    },
-    {
       "yacineMTB/pyrepl.nvim",
       dependencies = { 'nvim-lua/plenary.nvim' },
       config = function()
@@ -325,51 +295,10 @@ require('lazy').setup({
     require 'plugins.twilight',
     require 'plugins.obsidian',
     require 'plugins.dingllm',
+    require 'plugins.auto-session',
+    require 'plugins.alpha-nvim',
 
     -- require 'plugins',
-    config = function()
-      require("plugins.obsidian").setup({
-        workspaces = {
-          {
-            name = "personal",
-            path = "/Storage/logseq",
-          },
-          {
-            name = "work",
-            path = "/Code/avenueIntelligence/avenueIntelligence Logseq",
-          },
-        },
-
-        daily_notes = {
-          -- Optional, if you keep daily notes in a separate directory.
-          folder = "journals",
-          -- Optional, if you want to change the date format for the ID of daily notes.
-          date_format = "%Y_%m_%d",
-          -- Optional, if you want to change the date format of the default alias of daily notes.
-          alias_format = "%B %-d, %Y",
-          -- Optional, default tags to add to each new daily note created.
-          default_tags = { "journals" },
-          -- Optional, if you want to automatically insert a template from your template directory like 'daily.md'
-          template = nil
-        },
-
-        -- Optional, completion of wiki links, local markdown links, and tags using nvim-cmp.
-        completion = {
-          -- Set to false to disable completion.
-          nvim_cmp = true,
-          -- Trigger completion at 2 chars.
-          min_chars = 2,
-          -- Custom wiki link function.
-          wiki_link_func = function(link)
-            -- Your custom function to handle wiki links.
-            return link
-          end,
-        },
-
-        -- New notes location (moved to top-level).
-        new_notes_location = "pages",
-      })
-    end,
     { -- import = 'custom.plugins.nvim-ufo'
       -- import = 'custom.plugins.dingllm'
     },
