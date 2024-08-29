@@ -295,6 +295,7 @@ require('lazy').setup({
     require 'plugins.twilight',
     require 'plugins.obsidian',
     require 'plugins.dingllm',
+    require 'plugins.avante',
     require 'plugins.auto-session',
     require 'plugins.alpha-nvim',
 
