@@ -38,6 +38,7 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
+    { 'mbbill/undotree' },
     { 'echasnovski/mini.nvim', version = false },
     {
       "yacineMTB/pyrepl.nvim",
@@ -141,7 +142,7 @@ require('lazy').setup({
       },
     },
     -- Useful plugin to show you pending keybinds.
-    { 'folke/which-key.nvim',          opts = {} },
+    { 'folke/which-key.nvim', opts = {} },
     {
       -- Adds git releated signs to the gutter, as well as utilities for managing changes
       'lewis6991/gitsigns.nvim',
@@ -602,6 +603,15 @@ mason_lspconfig.setup_handlers {
       on_attach = on_attach,
       settings = servers[server_name],
     }
+  end,
+  ["tsserver"] = function()
+    lspconfig.ts_ls.setup({
+      settings = {
+        completions = {
+          completeFunctionCalls = true,
+        },
+      },
+    })
   end,
 }
 
