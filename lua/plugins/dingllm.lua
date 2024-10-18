@@ -31,7 +31,8 @@ return {
     local function openai_replace()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'https://api.openai.com/v1/chat/completions',
-        model = 'gpt-4o',
+        --model = 'o1-2024-09-12-preview',
+        model = 'gpt-4o-2024-08-06',
         api_key_name = 'OPENAI_API_KEY',
         system_prompt = system_prompt,
         replace = true,
@@ -41,7 +42,8 @@ return {
     local function openai_help()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'https://api.openai.com/v1/chat/completions',
-        model = 'gpt-4o',
+        --model = 'o1-2024-09-12-preview',
+        model = 'gpt-4o-2024-08-06',
         api_key_name = 'OPENAI_API_KEY',
         system_prompt = helpful_prompt,
         replace = false,

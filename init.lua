@@ -9,7 +9,7 @@ require "autocommands"
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-
+vim.g.python3_host_prog = '/Code/tools/nvimPython/nvim-venv/python'
 --    `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -38,8 +38,10 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
+    { "olacin/telescope-cc.nvim" },
+    { 'olekli/DrDictaphone' },
     { 'mbbill/undotree' },
-    { 'echasnovski/mini.nvim', version = false },
+    { 'echasnovski/mini.nvim',   version = false },
     {
       "yacineMTB/pyrepl.nvim",
       dependencies = { 'nvim-lua/plenary.nvim' },
@@ -49,7 +51,19 @@ require('lazy').setup({
         })
       end,
       keys = {
-        { "<leader>p", function() require('pyrepl').run_selected_lines() end, mode = "v", desc = "Run selected lines" }
+        { "<leader>p", function() require('pyrepl').run_selected_lines() end, mode = "v", desc = "Run selected lines" },
+        {
+          "<leader>P",
+          function()
+            vim.cmd('normal! ggVG')
+            require('pyrepl').run_selected_lines()
+            vim.cmd('normal! <Esc>')
+            vim.cmd('normal! <C-o>')
+            vim.cmd('normal! <C-o>')
+          end,
+          mode = "n",
+          desc = "Run entire buffer"
+        }
       }
     },
     { "nvim-neotest/nvim-nio" },
