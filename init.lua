@@ -38,6 +38,16 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
+    {
+      'boganworld/crackboard.nvim',
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        require('crackboard').setup({
+          session_key = '60f6f2fa25124e327d8b9be0715b508b0c1461854bb28d61f19abcb1309e9bb2',
+        })
+      end,
+    },
+    { "3rd/image.nvim" },
     { "olacin/telescope-cc.nvim" },
     { 'olekli/DrDictaphone' },
     { 'mbbill/undotree' },
@@ -57,9 +67,6 @@ require('lazy').setup({
           function()
             vim.cmd('normal! ggVG')
             require('pyrepl').run_selected_lines()
-            vim.cmd('normal! <Esc>')
-            vim.cmd('normal! <C-o>')
-            vim.cmd('normal! <C-o>')
           end,
           mode = "n",
           desc = "Run entire buffer"
@@ -309,7 +316,9 @@ require('lazy').setup({
     require 'plugins.trouble',
     require 'plugins.twilight',
     require 'plugins.obsidian',
+    require 'plugins.lazygit',
     require 'plugins.dingllm',
+    require 'plugins.img-clip',
     require 'plugins.avante',
     require 'plugins.auto-session',
     require 'plugins.alpha-nvim',
@@ -584,9 +593,9 @@ require('mason-lspconfig').setup()
 local servers = {
   clangd = {},
   gopls = {},
-  pyright = {},
+  basedpyright = {},
   -- rust_analyzer = {},
-  tsserver = {},
+  ts_ls = {},
   marksman = {},
   lua_ls = {
     Lua = {
@@ -617,16 +626,7 @@ mason_lspconfig.setup_handlers {
       on_attach = on_attach,
       settings = servers[server_name],
     }
-  end,
-  ["tsserver"] = function()
-    lspconfig.ts_ls.setup({
-      settings = {
-        completions = {
-          completeFunctionCalls = true,
-        },
-      },
-    })
-  end,
+  end
 }
 
 -- nvim-tree
