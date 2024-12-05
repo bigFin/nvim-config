@@ -31,60 +31,24 @@ vim.cmd [[
 ]]
 vim.opt.rtp:prepend(lazypath)
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
-    {
-      'boganworld/crackboard.nvim',
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      config = function()
-        require('crackboard').setup({
-          session_key = '60f6f2fa25124e327d8b9be0715b508b0c1461854bb28d61f19abcb1309e9bb2',
-        })
-      end,
-    },
-    { "3rd/image.nvim" },
-    { "olacin/telescope-cc.nvim" },
-    { 'olekli/DrDictaphone' },
-    { 'mbbill/undotree' },
-    { 'echasnovski/mini.nvim',   version = false },
-    {
-      "yacineMTB/pyrepl.nvim",
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      config = function()
-        require("pyrepl").setup({
-          url = "http://localhost:5000/execute"
-        })
-      end,
-      keys = {
-        { "<leader>p", function() require('pyrepl').run_selected_lines() end, mode = "v", desc = "Run selected lines" },
-        {
-          "<leader>P",
-          function()
-            vim.cmd('normal! ggVG')
-            require('pyrepl').run_selected_lines()
-          end,
-          mode = "n",
-          desc = "Run entire buffer"
-        }
-      }
-    },
-    { "nvim-neotest/nvim-nio" },
+    "3rd/image.nvim",
+    "olacin/telescope-cc.nvim",
+    'olekli/DrDictaphone',
+    'mbbill/undotree',
+    'echasnovski/mini.nvim',
+    "nvim-neotest/nvim-nio",
+    'tpope/vim-fugitive',
+    'tpope/vim-rhubarb',
+    "FabijanZulj/blame.nvim",
+    'tpope/vim-sleuth',
+    'sbdchd/neoformat',
     {
       "ThePrimeagen/harpoon",
       branch = "harpoon2",
       requires = { { "nvim-lua/plenary.nvim" } }
     },
-    'tpope/vim-fugitive',
-    'tpope/vim-rhubarb',
-    "FabijanZulj/blame.nvim",
-    -- Detect tabstop and shiftwidth automatically
-    'tpope/vim-sleuth',
-    'sbdchd/neoformat',
     {
       "folke/todo-comments.nvim",
       dependencies = { "nvim-lua/plenary.nvim" },
@@ -96,8 +60,6 @@ require('lazy').setup({
       -- Optional dependencies
       dependencies = { "nvim-tree/nvim-web-devicons" },
     },
-    -- NOTE: This is where your plugins related to LSP can be installed.
-    --  The configuration is done below. Search for lspconfig to find it below.
     {
       -- LSP Configuration & Plugins
       'neovim/nvim-lspconfig',
@@ -107,7 +69,6 @@ require('lazy').setup({
         'williamboman/mason-lspconfig.nvim',
 
         -- Useful status updates for LSP
-        -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
         { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
 
         -- Additional lua configuration, makes nvim stuff amazing!
@@ -163,7 +124,7 @@ require('lazy').setup({
       },
     },
     -- Useful plugin to show you pending keybinds.
-    { 'folke/which-key.nvim', opts = {} },
+    { 'folke/which-key.nvim',          opts = {} },
     {
       -- Adds git releated signs to the gutter, as well as utilities for managing changes
       'lewis6991/gitsigns.nvim',
@@ -318,10 +279,13 @@ require('lazy').setup({
     require 'plugins.obsidian',
     require 'plugins.lazygit',
     require 'plugins.dingllm',
+    require 'plugins.pyrepl',
+    require 'plugins.crackboard',
+    require 'plugins.snacks',
     require 'plugins.img-clip',
     require 'plugins.avante',
     require 'plugins.auto-session',
-    require 'plugins.alpha-nvim',
+    -- require 'plugins.alpha-nvim',
 
     -- require 'plugins',
     { -- import = 'custom.plugins.nvim-ufo'
@@ -509,10 +473,10 @@ vim.defer_fn(function()
       swap = {
         enable = true,
         swap_next = {
-          ['<leader>a'] = '@parameter.inner',
+          ['<leader>sp'] = '@parameter.inner',
         },
         swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
+          ['<leader>sP'] = '@parameter.inner',
         },
       },
     },
@@ -546,7 +510,7 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  nmap('<leader>gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
   nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
@@ -570,15 +534,15 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 -- document existing key chains
-require('which-key').register {
-  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-  ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  --  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
-  ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-  ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-  ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-}
+require('which-key').register({
+  { "<leader>c", group = "[C]ode" },
+  { "<leader>r", group = "[R]ename" },
+  { "<leader>s", group = "[S]earch" },
+  { "<leader>h", group = "More git" },
+  { "<leader>d", group = "[D]ocument" },
+  { "<leader>w", group = "[W]orkspace" },
+  { "<leader>_", group = "which_key_ignore", mode = { "n", "n", "n", "n", "n", "n" } },
+})
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
@@ -594,7 +558,7 @@ local servers = {
   clangd = {},
   gopls = {},
   basedpyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = {},
   ts_ls = {},
   marksman = {},
   lua_ls = {
