@@ -1,11 +1,3 @@
---[[
-erdhver "bcgvbaf"
-require "keymaps"
-require "Lazy"
-require "autocommands"
-]]
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -18,7 +10,7 @@ if not vim.loop.fs_stat(lazypath) then
     'clone',
     '--filter=blob:none',
     'https://github.com/folke/lazy.nvim.git',
-    '--branch=stable', -- latest stable release
+    '--branch=stable',
     lazypath,
   }
 end
@@ -37,7 +29,12 @@ require('lazy').setup({
     "olacin/telescope-cc.nvim",
     'olekli/DrDictaphone',
     'mbbill/undotree',
-    'echasnovski/mini.nvim',
+    {
+      'echasnovski/mini.nvim',
+      config = function()
+        --require("mini.sessions").setup({})
+      end,
+    },
     "nvim-neotest/nvim-nio",
     'tpope/vim-fugitive',
     'tpope/vim-rhubarb',
@@ -277,7 +274,7 @@ require('lazy').setup({
     require 'plugins.trouble',
     require 'plugins.twilight',
     require 'plugins.obsidian',
-    require 'plugins.lazygit',
+    -- require 'plugins.lazygit',
     require 'plugins.dingllm',
     require 'plugins.pyrepl',
     require 'plugins.crackboard',
@@ -367,7 +364,7 @@ vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Map <C-t> to exit terminal insert mode and enter normal mode
-vim.keymap.set('t', '<C-t>', '<C-\\><C-n>', { noremap = true, silent = true })
+vim.keymap.set('t', '<C-/>', '<C-\\><C-n>', { noremap = true, silent = true })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -534,15 +531,17 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 -- document existing key chains
-require('which-key').register({
-  { "<leader>c", group = "[C]ode" },
-  { "<leader>r", group = "[R]ename" },
-  { "<leader>s", group = "[S]earch" },
-  { "<leader>h", group = "More git" },
-  { "<leader>d", group = "[D]ocument" },
-  { "<leader>w", group = "[W]orkspace" },
-  { "<leader>_", group = "which_key_ignore", mode = { "n", "n", "n", "n", "n", "n" } },
-})
+require('which-key').add(
+  {
+    { "", group = "[S]earch" },
+    { "", group = "[C]ode" },
+    { "", group = "[W]orkspace" },
+    { "", group = "More git" },
+    { "", group = "[D]ocument" },
+    { "", group = "[R]ename" },
+    { "", group = "which_key_ignore", mode = { "n", "n", "n", "n", "n", "n" } },
+  }
+)
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
