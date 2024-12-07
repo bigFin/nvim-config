@@ -14,7 +14,7 @@ return {
       sections = {
         {
           section = "terminal",
-          cmd = "chafa ~/.config/nvim/Shogoki.png  --format symbols --symbols vhalf --size 60x17 --stretch; sleep 0.1sec",
+          cmd = "chafa ~/.config/nvim/chicken.jpg  --format symbols --symbols vhalf --size 60x17 --stretch; sleep 0.1sec",
           height = 17,
           padding = 1,
         },
@@ -57,12 +57,12 @@ return {
               end,
               key = "n",
               icon = " ",
-              height = 5,
+              height = 8,
               enabled = true,
             },
             {
               title = "Open Issues",
-              cmd = "gh issue list -L 3",
+              cmd = "gh issue list -L 8",
               key = "i",
               action = function()
                 vim.fn.jobstart("gh issue list --web", { detach = true })
@@ -159,7 +159,7 @@ return {
         Snacks.toggle.diagnostics():map("<leader>ud")
         Snacks.toggle.line_number():map("<leader>ul")
         Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 }):map(
-        "<leader>uc")
+          "<leader>uc")
         Snacks.toggle.treesitter():map("<leader>uT")
         Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }):map("<leader>ub")
         Snacks.toggle.inlay_hints():map("<leader>uh")
