@@ -13,7 +13,7 @@ return {
       sections = {
         {
           section = "terminal",
-          cmd = "chafa ~/.config/nvim/Shogoki.png --format symbols --symbols vhalf --size 60x17 --stretch; bash sleep .1",
+          cmd = "chafa ~/.config/nvim/Shogoki.png  --format symbols --symbols vhalf --size 60x17 --stretch; sleep 0.1sec",
           height = 17,
           padding = 1,
         },
