@@ -162,20 +162,14 @@ require('lazy').setup({
       },
     },
     {
-      'rose-pine/neovim',
-      priority = 1000,
-      config = function()
-        vim.cmd.colorscheme 'rose-pine'
-      end,
-    },
-    {
       'nvim-lualine/lualine.nvim',
       requires = { 'kyazdani42/nvim-web-devicons', opt = true },
       config = function()
         require('lualine').setup {
           options = {
             icons_enabled = true,
-            theme = 'rose-pine',
+            -- theme = 'rose-pine',
+            theme = 'everforest',
             component_separators = '|',
             section_separators = '',
           },
@@ -282,6 +276,8 @@ require('lazy').setup({
     require 'plugins.img-clip',
     require 'plugins.avante',
     require 'plugins.auto-session',
+    -- require 'plugins.rose-pine',
+    require 'plugins.everforest',
     -- require 'plugins.alpha-nvim',
 
     -- require 'plugins',
