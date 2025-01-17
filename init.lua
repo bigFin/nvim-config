@@ -553,6 +553,7 @@ local servers = {
   clangd = {},
   gopls = {},
   basedpyright = {},
+  zls = {},
   rust_analyzer = {},
   ts_ls = {},
   marksman = {},
