@@ -22,6 +22,8 @@ vim.cmd [[
   augroup END
 ]]
 vim.opt.rtp:prepend(lazypath)
+-- for avante.nvim
+vim.opt.laststatus = 3
 
 package.path = package.path .. ";~/.luarocks.share/lua/5.1/?/init.lua;"
 require('lazy').setup({
