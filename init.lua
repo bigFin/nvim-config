@@ -274,13 +274,13 @@ require('lazy').setup({
     require 'plugins.dingllm',
     require 'plugins.pyrepl',
     require 'plugins.crackboard',
-    require 'plugins.snacks',
+    -- require 'plugins.snacks',
     require 'plugins.img-clip',
     require 'plugins.avante',
     require 'plugins.auto-session',
     -- require 'plugins.rose-pine',
     require 'plugins.everforest',
-    -- require 'plugins.alpha-nvim',
+    require 'plugins.alpha-nvim',
 
     -- require 'plugins',
     { -- import = 'custom.plugins.nvim-ufo'
