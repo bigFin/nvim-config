@@ -12,13 +12,13 @@ return {
     dashboard = {
 
       sections = {
-        {
-          section = "terminal",
-          cmd =
-          "chafa ~/.config/nvim/chicken.jpg  --format symbols --symbols ascii --size 60x35 --stretch -c full --dither bayer --dither-grain 8 --fill ascii -p on -w 9; sleep 0.1sec",
-          height = 17,
-          padding = 1,
-        },
+        -- {
+        --   section = "terminal",
+        --   cmd =
+        --   "chafa ~/.config/nvim/chicken.jpg  --format symbols --symbols ascii --size 60x35 --stretch -c full --dither bayer --dither-grain 8 --fill ascii -p on -w 9; sleep 0.1sec",
+        --   height = 17,
+        --   padding = 1,
+        -- },
         { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
         { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
         {
