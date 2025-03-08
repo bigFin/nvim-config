@@ -273,7 +273,6 @@ require('lazy').setup({
     -- require 'plugins.lazygit',
     require 'plugins.dingllm',
     require 'plugins.pyrepl',
-    require 'plugins.crackboard',
     -- require 'plugins.snacks',
     require 'plugins.img-clip',
     require 'plugins.avante',
