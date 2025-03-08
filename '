@@ -1,5 +1,0 @@
-require "options"
-require "keymaps"
-require "Lazy"
-require "autocommands"
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
