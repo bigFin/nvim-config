@@ -363,6 +363,10 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Map <C-t> to exit terminal insert mode and enter normal mode
 vim.keymap.set('t', '<C-/>', '<C-\\><C-n>', { noremap = true, silent = true })
 
+--
+-- Map 'yyy' to yank the entire buffer in normal mode
+vim.keymap.set('n', 'yyy', ':%y<CR>', { noremap = true, silent = true })
+--
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
