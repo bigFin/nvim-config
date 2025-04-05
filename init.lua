@@ -44,6 +44,10 @@ require('lazy').setup({
     'tpope/vim-sleuth',
     'sbdchd/neoformat',
     {
+  'stevearc/conform.nvim',
+  opts = {},
+},
+    {
       "ThePrimeagen/harpoon",
       branch = "harpoon2",
       requires = { { "nvim-lua/plenary.nvim" } }
@@ -321,14 +325,14 @@ vim.wo.number = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
+ -- Sync clipboard between OS and Neovim.
+-- Remove this option if you want your OS clipboard to remain independent.
 vim.opt.clipboard:append("unnamedplus")
 
 -- OSC 52 clipboard provider
 local function copy(lines, _)
   local text = table.concat(lines, "\n")
+  -- Send OSC 52 sequence to the terminal
   vim.fn.chansend(vim.v.stderr, "\x1b]52;c;" .. vim.base64.encode(text) .. "\x07")
 end
 
@@ -337,8 +341,8 @@ local function paste()
   return vim.split(content, "\n")
 end
 
--- Set the clipboard provider only when over SSH
-if vim.env.SSH_TTY then
+-- Check if we're in SSH or tmux and set clipboard accordingly
+if vim.env.SSH_TTY or vim.env.TMUX then
   vim.g.clipboard = {
     name = "OSC 52",
     copy = {
@@ -350,7 +354,13 @@ if vim.env.SSH_TTY then
       ["*"] = paste,
     },
   }
-end
+  -- Optional: Notify user that OSC 52 is being used (for debugging)
+  -- vim.notify("Using OSC 52 clipboard provider", vim.log.levels.INFO)
+else
+  -- Fallback to default clipboard behavior when not in SSH/tmux
+  vim.g.clipboard = nil
+end 
+
 -- Enable break indent
 vim.o.breakindent = true
 
